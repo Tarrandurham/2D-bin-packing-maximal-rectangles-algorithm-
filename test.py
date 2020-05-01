@@ -9,9 +9,10 @@ white = 255, 255, 255
 
 
 rectangle = [40, 0, 60, 80]
-containers = [[0, 30, 40, 270]]
+containers = [[40, 0, 260, 300]]
 if pygame.Rect(rectangle).collidelist(containers) != -1:
     print("colliding")
+    print(pygame.Rect(rectangle).collidelist(containers))
 rrectangles = rectangle
 show = True
 while show:
