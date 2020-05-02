@@ -11,8 +11,8 @@ containers = [[0, 0, 300, 300]]
 firstcontainer = containers[0]
 
 show = True
-rrectangles = [[0, 0, 40, 30], [0, 0, 60, 80], [0, 0, 90, 20],
-               [0, 0, 100, 100], [0, 0, 40, 30], [0, 0, 60, 80], [0, 0, 100, 100], [0, 0, 40, 30], [0, 0, 60, 80]]
+rrectangles = [[0, 0, 50, 50], [0, 0, 200, 200], [0, 0, 30, 40], [0, 0, 70, 70], [0, 0, 30, 30], [0, 0, 10, 40], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 30, 30], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 30, 30], [0, 0, 60, 30], [0, 0, 30, 30], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 50, 30], [0, 0, 60, 30], [0, 0, 60, 40], [0, 0, 60, 30], [0, 0, 4, 50], [0, 0, 26, 41], [0, 0, 40, 14]
+               ]
 
 """, [0, 0, 20, 20], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 100, 100], [0, 0, 40, 30], [0, 0, 60, 80], [
     0, 0, 20, 20], [0, 0, 20, 20], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 30, 30], [0, 0, 40, 50], [0, 0, 100, 100], [0, 0, 40, 30], [0, 0, 60, 80], [
@@ -33,10 +33,10 @@ def action(containers, rrectangles):
         shortlisty = []
         for container in containers:
 
-            shortlistx.append(abs(container[2]-rectangle[0]))
+            shortlistx.append(abs(container[2]-rectangle[2]))
 
             shortlisty.append(
-                abs(container[3]-rectangle[1]))
+                abs(container[3]-rectangle[3]))
             """print("This is the shortlist: " + str(shortlistx))
             print("This is the shortlisty: " + str(shortlisty))"""
         # iterate through axes of shortlist to find minimum side
@@ -56,27 +56,35 @@ def action(containers, rrectangles):
                 rrectangles.remove(rectangle)
                 p = False
                 break
-
+            print("x")
+            print(sorted(shortlistx))
             chosencontainerx = sorted(shortlistx)[l]
 
+            print("y")
+            print(sorted(shortlisty))
             indexx = shortlistx.index(chosencontainerx)
             chosencontainery = sorted(shortlisty)[l]
             indexy = shortlisty.index(chosencontainery)
 
-            if chosencontainerx >= chosencontainery and containers[indexy][0] + containers[indexy][2] <= firstcontainer[2] and containers[indexy][1]+containers[indexy][3] <= firstcontainer[3] and rectangle[2]+containers[indexy][0] < firstcontainer[2] and rectangle[3]+containers[indexy][1] < firstcontainer[3] and rectangle[3] <= containers[indexy][3]:
-                print("I take path a: ")
+            if chosencontainerx >= chosencontainery and containers[indexy][0] + containers[indexy][2] <= firstcontainer[2] and containers[indexy][1]+containers[indexy][3] <= firstcontainer[3] and rectangle[2]+containers[indexy][0] <= firstcontainer[2] and rectangle[3]+containers[indexy][1] <= firstcontainer[3] and rectangle[3] <= containers[indexy][3]:
+                print("I take path links unten: ")
                 rectangle[1] = containers[indexy][1]
                 rectangle[0] = containers[indexy][0]
-                if rectangle[1] > 0 and rectangle[1] + containers[indexx][1] <= firstcontainer[3]:
+                # and rectangle[1]+rectangle[3] > container[1]
+
+                if rectangle[1] > 0 and rectangle[1] + containers[indexx][1] <= firstcontainer[3] and rectangle[0] + rectangle[2] > containers[indexy][1]:
                     containers[indexx][3] = rectangle[1]
                     print("I split container into a new container " +
                           str(containers))
-
-                removedcontainer = containers.pop(indexy)
+                removedcontainer = containers[indexy]
+                # removedcontainer = containers.pop(indexy)
                 print(" I placed " + str(rectangle) +
                       " in " + str(removedcontainer))
                 removedcontainer[2] = removedcontainer[2] + \
                     removedcontainer[0] - rectangle[0]
+                removedcontainer[3] = removedcontainer[3] + \
+                    removedcontainer[1] - rectangle[1]
+                print("this is the removed container: " + str(removedcontainer))
                 containers.append(removedcontainer)
                 print(" I added this old split container to the possible list: " +
                       str(containers[-1]))
@@ -88,23 +96,37 @@ def action(containers, rrectangles):
                       str(containers[-1]) + " and " + str(containers[-2]))
 
                 print("entire container list: " + str(containers))
+                if pygame.Rect(
+                        rectangle).collidelist(containers) != -1:
+                    print("entered the colliding domain left ")
+                    containers[pygame.Rect(
+                        rectangle).collidelist(containers)][3] = containers[pygame.Rect(
+                            rectangle).collidelist(containers)][3] + \
+                        containers[pygame.Rect(
+                            rectangle).collidelist(containers)][1] - rectangle[1]
                 p = False
                 # placedrectangles.append(rectangle)
-            elif chosencontainerx < chosencontainery and containers[indexx][0] + containers[indexx][2] <= firstcontainer[2] and containers[indexx][1]+containers[indexx][3] <= firstcontainer[3] and rectangle[2]+containers[indexx][0] < firstcontainer[2] and rectangle[3]+containers[indexx][1] < firstcontainer[3] and rectangle[2] <= containers[indexx][2]:
-                print("I take path b: ")
+            elif chosencontainerx < chosencontainery and containers[indexx][0] + containers[indexx][2] <= firstcontainer[2] and containers[indexx][1]+containers[indexx][3] <= firstcontainer[3] and rectangle[2]+containers[indexx][0] <= firstcontainer[2] and rectangle[3]+containers[indexx][1] <= firstcontainer[3] and rectangle[2] <= containers[indexx][2]:
+                print("I take path rechts oben: ")
+
+                # placing the rectangles x and y in the containers x and y
                 rectangle[1] = containers[indexx][1]
                 rectangle[0] = containers[indexx][0]
-                if rectangle[0] > 0 and rectangle[0] + containers[indexy][0] <= firstcontainer[2]:
+
+                # if the rectangle has an x depth and the rectangle coordinate plus the chosencontainers x coordinate are
+                if rectangle[0] > 0 and rectangle[0] + containers[indexy][0] <= firstcontainer[2] and rectangle[1] + rectangle[3] > containers[indexx][0]:
                     containers[indexy][2] = rectangle[0]
 
                     print("I split container into a new container " +
                           str(containers))
-
-                removedcontainer = containers.pop(indexx)
+                removedcontainer = containers[indexx]
+                # removedcontainer = containers.pop(indexx)
                 print(" I placed " + str(rectangle) +
                       " in " + str(removedcontainer))
                 removedcontainer[3] = removedcontainer[3] + \
                     removedcontainer[1] - rectangle[1]
+                removedcontainer[2] = removedcontainer[2] + \
+                    removedcontainer[0] - rectangle[0]
                 containers.append(removedcontainer)
                 print(" I added this old split container to the possible list: " +
                       str(containers[-1]))
@@ -114,6 +136,14 @@ def action(containers, rrectangles):
                                    rectangle[1], removedcontainer[2]-rectangle[2], removedcontainer[3]])
                 print(" I added these two containers to the possible list: " +
                       str(containers[-1]) + " and " + str(containers[-2]))
+                if pygame.Rect(
+                        rectangle).collidelist(containers) != -1:
+                    print("entered the colliding domain right ")
+                    containers[pygame.Rect(
+                        rectangle).collidelist(containers)][2] = containers[pygame.Rect(
+                            rectangle).collidelist(containers)][2] + \
+                        containers[pygame.Rect(
+                            rectangle).collidelist(containers)][0] - rectangle[0]
                 p = False
                 # placedrectangles.append(rectangle)
             else:
@@ -125,29 +155,48 @@ def action(containers, rrectangles):
                 elif chosencontainerx < chosencontainery:
                     container.pop(indexx)"""
             print("all currently available containers: " + str(containers))
-        for container in list(containers):
-
-            if pygame.Rect(
-                    rectangle).collidelist(containers) != -1:
-                print(containers)
-                print("removed container " + str(container) +
-                      " thats touching rectangle " + str(rectangle))
-                containers.remove(containers[pygame.Rect(
-                    rectangle).collidelist(containers)])
-                # list(filter((containers[pygame.Rect(
-                #   rectangle).collidelist(containers)]).__ne__, containers))
-                print(containers)
-            elif container[0] + container[2] > firstcontainer[2] or container[1] + container[3] > firstcontainer[3]:
-                print("removed container thats larger than the border " + str(container))
-                containers.remove(container)
-            elif container[2] == 0 or container[3] == 0:
-                print("This container is to small: " + str(container))
-                containers.remove(container)
-            else:
-                print("none removed")
 
         placedrectangles.append(rectangle)
         rrectangles.remove(rectangle)
+
+        for container in list(containers):
+            for rectangle in placedrectangles:
+                if pygame.Rect(
+                        rectangle).collidelist(containers) != -1:
+                    print(containers)
+                    print("removed container " + str(containers[pygame.Rect(
+                        rectangle).collidelist(containers)]) +
+                        " thats touching rectangle " + str(rectangle))
+                    containers.remove(containers[pygame.Rect(
+                        rectangle).collidelist(containers)])
+                    """containers[pygame.Rect(
+                        rectangle).collidelist(containers)][2] = containers[pygame.Rect(
+                            rectangle).collidelist(containers)][2] + \
+                        containers[pygame.Rect(
+                            rectangle).collidelist(containers)][0] - rectangle[0]
+                    containers[pygame.Rect(
+                        rectangle).collidelist(containers)][3] = containers[pygame.Rect(
+                            rectangle).collidelist(containers)][3] + \
+                        containers[pygame.Rect(
+                            rectangle).collidelist(containers)][1] - rectangle[1]"""
+
+                    print(containers)
+                elif container[0] + container[2] > firstcontainer[2] or container[1] + container[3] > firstcontainer[3]:
+                    print(
+                        "removed container thats larger than the border " + str(container))
+                    try:
+                        containers.remove(container)
+                    except:
+                        pass
+                elif container[2] == 0 or container[3] == 0:
+                    try:
+                        print("This container is to small: " + str(container))
+                        containers.remove(container)
+                        print("Container is removed")
+                    except:
+                        pass
+                else:
+                    print("none removed")
 
 
 rcount = 0
